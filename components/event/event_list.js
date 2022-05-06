@@ -1,9 +1,7 @@
 import EventItem from "./event_item";
 import classes from "./event_list.module.css";
 
-function EventList(props) {
-    const { items } = props;
-    console.log(items);
+function EventList({items}) {
 
     return (
         <>
