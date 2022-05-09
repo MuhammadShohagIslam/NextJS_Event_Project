@@ -1,19 +1,12 @@
-import { useRouter } from "next/router";
 import { Fragment } from "react";
 import EventContent from "../../components/event_detail/event_content";
 import EventLogistics from "../../components/event_detail/event_logistics";
 import EventSummary from "../../components/event_detail/event_summary";
-import { getEventById } from "../../dummy-data";
+import { getEventById, getFeaturedEvents } from "../../helper/api_utils";
 
-function DetailsEventPage() {
-    const route = useRouter();
-    const id = route.query.eventId;
-    const event = getEventById(id);
-    
-    if(!event){
-        return (
-            <h2>Page Is Not Found</h2>
-        )
+function DetailsEventPage({ event }) {
+    if (!event) {
+        return <h2>Loading...</h2>;
     }
     return (
         <Fragment>
@@ -29,6 +22,31 @@ function DetailsEventPage() {
             </EventContent>
         </Fragment>
     );
+}
+
+export async function getStaticProps(context) {
+    const { params } = context;
+    const eventId = params.eventId;
+    const event = await getEventById(eventId);
+
+    return {
+        props: {
+            event,
+        },
+    };
+}
+
+export async function getStaticPaths() {
+    const featuredEvents = await getFeaturedEvents();
+    const paths = featuredEvents.map((event) => ({
+        params: { eventId: event.id },
+    }));
+    console.log(paths)
+
+    return {
+        paths: paths,
+        fallback: true,
+    };
 }
 
 export default DetailsEventPage;
