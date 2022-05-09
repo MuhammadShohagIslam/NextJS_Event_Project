@@ -26,15 +26,15 @@ export async function getEventById(eventId) {
     return event;
 }
 
-export async function getFilteredEvents(dateObject) {
-    const events = await getAllEvents();
-    const { year, month } = dateObject;
+// export async function getFilteredEvents(dateObject) {
+//     const events = await getAllEvents();
+//     const { year, month } = dateObject;
 
-    const filteredEvents = events.filter((event) => {
-        const newDate = new Date(event.date);
-        return (
-            newDate.getFullYear() === year && newDate.getMonth() === month - 1
-        );
-    });
-    return filteredEvents;
-}
+//     const filteredEvents = events.filter((event) => {
+//         const newDate = new Date(event.date);
+//         return (
+//             newDate.getFullYear() === year && newDate.getMonth() === month - 1
+//         );
+//     });
+//     return filteredEvents;
+// }

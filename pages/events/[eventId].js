@@ -1,3 +1,4 @@
+import Head  from "next/head";
 import { Fragment } from "react";
 import EventContent from "../../components/event_detail/event_content";
 import EventLogistics from "../../components/event_detail/event_logistics";
@@ -10,6 +11,11 @@ function DetailsEventPage({ event }) {
     }
     return (
         <Fragment>
+            <Head>
+                {/* dynamic way set head of data */}
+                <title>{event.title}</title>
+                <meta name="description" content={event.description} />
+            </Head>
             <EventSummary title={event.title} />
             <EventLogistics
                 title={event.title}
@@ -41,7 +47,6 @@ export async function getStaticPaths() {
     const paths = featuredEvents.map((event) => ({
         params: { eventId: event.id },
     }));
-    console.log(paths)
 
     return {
         paths: paths,

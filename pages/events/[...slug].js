@@ -1,40 +1,67 @@
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
-import { getFilteredEvents } from "../../helper/api_utils";
+import Head from "next/head";
+import useSWR from "swr";
 import Button from "./../../components/ui/button";
 import EventList from "../../components/event/event_list";
 import ResultTitlle from "../../components/event/results_title";
 import ErrorAlert from "../../components/ui/error_alert";
+import axios from "axios";
 
-
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 function FilteredEventPage() {
-    const[loading, setLoading] = useState(false)
-   const [filteredEvents, setFilteredEvents] = useState();
+    const [events, setEvents] = useState();
     const route = useRouter();
     const filterDate = route.query.slug;
     // // if we do not want to set SEO on the page, use cases below
-    useEffect(()=> {
-        setLoading(true);
-        async function getData(){
-            const filteredEvents =await getFilteredEvents({
-                year: numYear,
-                month: numMonth
-            })
-            setFilteredEvents(filteredEvents);
-            setLoading(false);
+    const { data, error } = useSWR(
+        "https://clinetsidefetching-default-rtdb.firebaseio.com/events.json",
+        fetcher
+    );
+    useEffect(() => {
+        if (data) {
+            const events = [];
+            for (let key in data) {
+                events.push({
+                    id: key,
+                    ...data[key],
+                });
+            }
+            setEvents(events);
         }
-        getData();
-    }, [])
+    }, [data]);
 
-    if (!filterDate) {
-        return <p className="center">Loading...</p>;
+    let headData = (
+        <Head>
+            <title>{`Filtered Events`}</title>
+            <meta name="description" content={`All list of filtered events`} />
+        </Head>
+    );
+
+    if (!filterDate || !events) {
+        return (
+            <Fragment>
+                {headData}
+                <p className="center">Loading...</p>
+            </Fragment>
+        );
     }
     const filteredYear = filterDate[0];
     const filteredMonth = filterDate[1];
 
     const numYear = +filteredYear;
     const numMonth = +filteredMonth;
+
+    headData = (
+        <Head>
+            <title>{`Filtered Events with ${numYear}/${numMonth}`}</title>
+            <meta
+                name="description"
+                content={`This is about filtered event with ${numYear}/${numMonth}`}
+            />
+        </Head>
+    );
 
     if (
         isNaN(numYear) ||
@@ -45,6 +72,7 @@ function FilteredEventPage() {
     ) {
         return (
             <Fragment>
+                {headData}
                 <ErrorAlert>
                     <p className="center">
                         Invalid Filtered, Please adjust your value!
@@ -57,13 +85,18 @@ function FilteredEventPage() {
         );
     }
 
-    if (loading) {
-        return <p className="center">Loading...</p>;
-    }
+    const filteredEvents = events.filter((event) => {
+        const newDate = new Date(event.date);
+        return (
+            newDate.getFullYear() === numYear &&
+            newDate.getMonth() === numMonth - 1
+        );
+    });
 
-    if (!filteredEvents || filteredEvents.length === 0) {
+    if (!filteredEvents || filteredEvents.length === 0 || error) {
         return (
             <Fragment>
+                {headData}
                 <ErrorAlert>
                     <p className="center">
                         No events found for the chosen filtered!
@@ -80,6 +113,7 @@ function FilteredEventPage() {
 
     return (
         <Fragment>
+            {headData}
             <ResultTitlle date={date} />
             <EventList items={filteredEvents} />
         </Fragment>
