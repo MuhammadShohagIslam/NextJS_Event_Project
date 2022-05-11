@@ -1,11 +1,13 @@
 import Head  from "next/head";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import EventContent from "../../components/event_detail/event_content";
 import EventLogistics from "../../components/event_detail/event_logistics";
 import EventSummary from "../../components/event_detail/event_summary";
+import Comments from "../../components/input/comments";
 import { getEventById, getFeaturedEvents } from "../../helper/api_utils";
 
-function DetailsEventPage({ event }) {
+function DetailsEventPage({ event, eventId}) {
+
     if (!event) {
         return <h2>Loading...</h2>;
     }
@@ -26,6 +28,7 @@ function DetailsEventPage({ event }) {
             <EventContent>
                 <p>{event.description}</p>
             </EventContent>
+            <Comments eventId={event.id}/>
         </Fragment>
     );
 }
@@ -37,7 +40,7 @@ export async function getStaticProps(context) {
 
     return {
         props: {
-            event,
+            event
         },
     };
 }
