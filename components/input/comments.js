@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import classes from "./comments.module.css";
 import CommentList from "./comment_list";
 import NewComment from "./new_comment";
-import classes from "./comments.module.css";
 
 function Comments({ eventId }) {
+    const [commentList, setCommentList] = useState([]);
     const [showComment, setShowComment] = useState(false);
+
+    useEffect(() => {
+        if (showComment) {
+            fetch(`/api/comments/${eventId}`)
+                .then((response) => response.json())
+                .then((data) => setCommentList(data.comments));
+        }
+    }, [showComment]);
 
     function handleShowComment() {
         setShowComment((prevComment) => !prevComment);
@@ -14,29 +23,25 @@ function Comments({ eventId }) {
         const newComment = {
             email,
             name,
-            comment
+            comment,
         };
-        const response = await fetch(`/api/comments/${eventId}`, {
+        fetch(`/api/comments/${eventId}`, {
             method: "POST",
             body: JSON.stringify(newComment),
             headers: {
                 "Content-Type": "application/json",
             },
-        });
-        const data = await response.json();
-        console.log(data);
-
-        const commentResponse = await fetch(`/api/comments/${eventId}`);
-        const commentList = await commentResponse.json();
-        console.log(commentList);
+        })
+            .then((response) => response.json())
+            .then((data) => console.log(data));
     }
     return (
         <section className={classes.comments}>
             <button onClick={handleShowComment}>
-                {showComment ? "Hide Comment" : "Show Comment"}
+                {showComment ? "Hide" : "Show"}
             </button>
             {showComment && <NewComment onComment={onCommentHandler} />}
-            {showComment && <CommentList />}
+            {showComment && <CommentList commentList={commentList} />}
         </section>
     );
 }
