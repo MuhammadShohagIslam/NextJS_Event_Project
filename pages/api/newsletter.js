@@ -2,8 +2,8 @@ import { db_connection, inserting_data } from "../../helper/db_utils";
 
 async function handler(req, res) {
     if (req.method === "POST") {
-        const { email } = req.body;
-        if (!email || !email.includes("@")) {
+        const userEmail = req.body.email;
+        if (!userEmail || !userEmail.includes("@")) {
             res.status(422).json({ message: "Invalid Email Address" });
             return;
         }
@@ -17,16 +17,14 @@ async function handler(req, res) {
         }
         try {
             await inserting_data(client, "newsletter", {
-                email: email,
-            });
-            res.status(201).json({
-                message: "Sign Up!",
+                email: userEmail,
             });
             client.close();
         } catch (error) {
             res.status(500).json({ message: "Inserted Data Failed!" });
             return;
         }
+        res.status(201).json({ message: "SignUp..." });
     }
 }
 export default handler;
