@@ -1,8 +1,8 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useEffect, useState } from "react";
 
 const NotificationContext = createContext({
     notification: null,
-    showNotification: function () {},
+    showNotification: function (notificationData) {},
     hideNotification: function () {},
 });
 
